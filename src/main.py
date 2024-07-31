@@ -32,6 +32,10 @@ class ContactAdd(BaseModel):
 class ContactUpdate(ContactAdd):
     contact_id: int
 
+class DealUpdate(BaseModel):
+    id: int
+    stage_id: str
+    closed: int = 1
 
 
 
@@ -167,6 +171,37 @@ async def update_contact(request: Request):
     })
 
     return {"message": "Контакт успешно обновлен", "contact_data": contact_data}
+
+
+@app.post("/update-deal/")
+async def update_contact(deal: DealUpdate):
+    update_data = {
+        'fields': {
+            "STAGE_ID": "PREPAYMENT_INVOICE",
+            "ClOSED": '0'
+        },
+        'params': {"REGISTER_SONET_EVENT": "Y"}
+    }
+
+    # URL для обновления контакта через вебхук
+    url = f'https://{BITRIX24_DOMAIN}/rest/1/{WEBHOOK_KEY}/crm.deal.update'
+
+    # Параметры запроса
+    params = {
+        'ID': deal.id,
+        **update_data
+    }
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, json=params)
+        if response.status_code == 200:
+            response_data = response.json()
+            if 'error' in response_data:
+                return {"error": response_data['error_description']}
+            else:
+                return {"result": response_data}
+        else:
+            return {"error": f"Ошибка при подключении к Bitrix24. Статус код: {response.status_code}"}
 
 
 
