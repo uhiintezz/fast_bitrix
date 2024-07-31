@@ -3,16 +3,20 @@ from typing import Annotated
 import httpx
 from fastapi import FastAPI, Request, Depends, HTTPException
 from pydantic import BaseModel, EmailStr
+
 from config import WEBHOOK_KEY, APPLICATION_TOKEN
+
 import requests
 import os
 import time
 import random
 from urllib.parse import parse_qs
-
+from pages.router import router as router_pages
 
 
 app = FastAPI()
+
+app.include_router(router_pages)
 
 
 class ContactAdd(BaseModel):
@@ -163,3 +167,6 @@ async def update_contact(request: Request):
     })
 
     return {"message": "Контакт успешно обновлен", "contact_data": contact_data}
+
+
+
