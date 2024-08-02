@@ -12,11 +12,12 @@ import time
 import random
 from urllib.parse import parse_qs
 from pages.router import router as router_pages
-
+from example10.router import router as router_example10
 
 app = FastAPI()
 
 app.include_router(router_pages)
+app.include_router(router_example10)
 
 
 class ContactAdd(BaseModel):
