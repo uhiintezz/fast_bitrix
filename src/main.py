@@ -15,12 +15,14 @@ from pages.router import router as router_pages
 
 from example10.router import router as router_example10
 from example11.router import router as router_example11
+from example12.router import router as router_example12
 
 app = FastAPI()
 
 app.include_router(router_pages)
 app.include_router(router_example10)
 app.include_router(router_example11)
+app.include_router(router_example12)
 
 
 class ContactAdd(BaseModel):
