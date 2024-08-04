@@ -12,12 +12,15 @@ import time
 import random
 from urllib.parse import parse_qs
 from pages.router import router as router_pages
+
 from example10.router import router as router_example10
+from example11.router import router as router_example11
 
 app = FastAPI()
 
 app.include_router(router_pages)
 app.include_router(router_example10)
+app.include_router(router_example11)
 
 
 class ContactAdd(BaseModel):
@@ -100,10 +103,8 @@ async def update_contact(contact: ContactUpdate):
         'params': {"REGISTER_SONET_EVENT": "Y"}
     }
 
-    # URL для обновления контакта через вебхук
     url = f'https://{BITRIX24_DOMAIN}/rest/1/{WEBHOOK_KEY}/crm.contact.update'
 
-    # Параметры запроса
     params = {
         'ID': contact.contact_id,
         **update_data
@@ -184,10 +185,8 @@ async def update_contact(deal: DealUpdate):
         'params': {"REGISTER_SONET_EVENT": "Y"}
     }
 
-    # URL для обновления контакта через вебхук
     url = f'https://{BITRIX24_DOMAIN}/rest/1/{WEBHOOK_KEY}/crm.deal.update'
 
-    # Параметры запроса
     params = {
         'ID': deal.id,
         **update_data
