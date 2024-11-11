@@ -17,6 +17,8 @@ from example10.router import router as router_example10
 from example11.router import router as router_example11
 from example12.router import router as router_example12
 from example13.router import router as router_example13
+from sdk.install import router as router_sdk
+from sdk.index import router as router_index
 
 app = FastAPI()
 
@@ -25,6 +27,9 @@ app.include_router(router_example10)
 app.include_router(router_example11)
 app.include_router(router_example12)
 app.include_router(router_example13)
+app.include_router(router_sdk)
+app.include_router(router_index)
+
 
 
 class ContactAdd(BaseModel):
@@ -36,7 +41,6 @@ class ContactAdd(BaseModel):
     phone_type: str
 
 
-
 class ContactUpdate(ContactAdd):
     contact_id: int
 
@@ -44,8 +48,6 @@ class DealUpdate(BaseModel):
     id: int
     stage_id: str
     closed: int = 1
-
-
 
 
 @app.post("/add-contact")

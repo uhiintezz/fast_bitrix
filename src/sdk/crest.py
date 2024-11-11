@@ -1,7 +1,8 @@
 import json
 import os
+from html import escape
 import requests
-
+from config import C_REST_WEB_HOOK_URL, C_REST_CLIENT_SECRET, C_REST_CLIENT_ID
 
 class CRest:
     VERSION = '1.36'
@@ -16,23 +17,27 @@ class CRest:
         }
 
         if request.get('event') == 'ONAPPINSTALL' and request.get('auth'):
-            result['install'] = CRest.set_app_settings(request['auth'], True)
+            auth_data = request['auth']
+            result['install'] = CRest.set_app_settings(auth_data, True)
         elif request.get('PLACEMENT') == 'DEFAULT':
+            auth_data = {
+                'access_token': escape(request.get('AUTH_ID', '')),
+                'expires_in': escape(request.get('AUTH_EXPIRES', '')),
+                'application_token': escape(request.get('APP_SID', '')),
+                'refresh_token': escape(request.get('REFRESH_ID', '')),
+                'domain': escape(request.get('DOMAIN', '')),
+                'client_endpoint': f"https://{escape(request.get('DOMAIN', ''))}/rest/"
+            }
             result['rest_only'] = False
-            result['install'] = CRest.set_app_settings({
-                'access_token': request['AUTH_ID'],
-                'expires_in': request['AUTH_EXPIRES'],
-                'application_token': request['APP_SID'],
-                'refresh_token': request['REFRESH_ID'],
-                'domain': request['DOMAIN'],
-                'client_endpoint': f"https://{request['DOMAIN']}/rest/"
-            }, True)
+            result['install'] = CRest.set_app_settings(auth_data, True)
 
         return result
-
     @staticmethod
     def set_app_settings(settings, is_install=False):
+        print('set_app_settings')
         if isinstance(settings, dict):
+            print('settings:')
+            print(settings)
             old_data = CRest.get_app_settings()
             if not is_install and old_data:
                 settings = {**old_data, **settings}
@@ -41,7 +46,7 @@ class CRest:
 
     @staticmethod
     def get_app_settings():
-        if 'C_REST_WEB_HOOK_URL' in os.environ and os.environ['C_REST_WEB_HOOK_URL']:
+        if C_REST_WEB_HOOK_URL:
             data = {
                 'client_endpoint': os.environ['C_REST_WEB_HOOK_URL'],
                 'is_web_hook': 'Y'
@@ -50,10 +55,6 @@ class CRest:
 
         data = CRest.get_setting_data()
         if (
-                data.get('access_token') and
-                data.get('domain') and
-                data.get('refresh_token') and
-                data.get('application_token') and
                 data.get('client_endpoint')
         ):
             return data
@@ -62,18 +63,20 @@ class CRest:
 
     @staticmethod
     def get_setting_data():
+        data = {}
+        data['C_REST_CLIENT_ID'] = os.environ.get('C_REST_CLIENT_ID', C_REST_CLIENT_ID)
+        data['C_REST_CLIENT_SECRET'] = os.getenv('C_REST_CLIENT_SECRET', C_REST_CLIENT_SECRET)
+        print('data:')
+        print(data)
         if os.path.exists('settings.json'):
-            with open('settings.json') as f:
-                data = json.load(f)
-                if 'C_REST_CLIENT_ID' in os.environ:
-                    data['C_REST_CLIENT_ID'] = os.environ['C_REST_CLIENT_ID']
-                if 'C_REST_CLIENT_SECRET' in os.environ:
-                    data['C_REST_CLIENT_SECRET'] = os.environ['C_REST_CLIENT_SECRET']
-                return data
-        return {}
+            print('settings.json')
+        with open('settings.json') as f:
+            data += json.load(f)
+        return data
 
     @staticmethod
     def set_setting_data(settings):
+        print('dump')
         with open('settings.json', 'w') as f:
             json.dump(settings, f, ensure_ascii=False, indent=4)
         return True
@@ -90,7 +93,7 @@ class CRest:
             if 'C_REST_CURRENT_ENCODING' in os.environ:
                 post_data['params'] = CRest.change_encoding(post_data['params'])
             return CRest.call_curl(post_data)
-        return {'error': 'no_install_app', 'error_information': 'error install app, pls install local application'}
+        return {'error': 'no_install_app', 'error_information': 'error install app, pls install local applications'}
 
     @staticmethod
     def call_curl(params):
@@ -128,7 +131,7 @@ class CRest:
     @staticmethod
     def check_curl():
         try:
-            return requests  # Just checking if requests can be used
+            return requests
         except ImportError:
             return False
 
@@ -174,6 +177,8 @@ class CRest:
             return [CRest.change_encoding(item, encoding) for item in data]
         else:
             if encoding:
-                return data.encode('utf-8').decode('utf-8')  # Example encoding change
+                return data.encode('utf-8').decode('utf-8')
             else:
-                return data  # Change back to original encoding if needed
+                return data
+
+
