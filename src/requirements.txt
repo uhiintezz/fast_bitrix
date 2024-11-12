@@ -6,3 +6,4 @@ gunicorn
 httpx
 python-dotenv
 requests
+jinja2
