@@ -10,10 +10,21 @@
       }
     }
   ],
+  "env": {
+    "PATH": "/python312/bin:$PATH"
+  },
   "routes": [
     {
       "src": "/(.*)",
       "dest": "/main.py"
     }
-  ]
+  ],
+  "build": {
+    "env": {
+      "VENV_PATH": "/python312/bin"
+    },
+    "commands": [
+      "python3 -m pip install -r requirements.txt"
+    ]
+  }
 }
