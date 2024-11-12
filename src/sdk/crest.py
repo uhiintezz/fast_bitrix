@@ -68,17 +68,11 @@ class CRest:
         data['C_REST_CLIENT_SECRET'] = os.getenv('C_REST_CLIENT_SECRET', C_REST_CLIENT_SECRET)
         print('data:')
         print(data)
-        if os.path.exists('settings.json'):
-            print('settings.json')
-        with open('settings.json') as f:
-            data += json.load(f)
         return data
 
     @staticmethod
     def set_setting_data(settings):
         print('dump')
-        with open('settings.json', 'w') as f:
-            json.dump(settings, f, ensure_ascii=False, indent=4)
         return True
 
     @staticmethod
