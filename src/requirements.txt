@@ -5,3 +5,4 @@ asyncpg
 gunicorn
 httpx
 python-dotenv
+requests
