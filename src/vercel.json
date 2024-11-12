@@ -10,9 +10,6 @@
       }
     }
   ],
-  "env": {
-    "PATH": "/python312/bin:$PATH"
-  },
   "routes": [
     {
       "src": "/(.*)",
