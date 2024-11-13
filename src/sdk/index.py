@@ -19,3 +19,13 @@ async def get_profile():
     result = CRest.call('profile', {})
     pprint.pprint(result)
     return result
+
+
+@router.get("/profile")
+async def get_profile():
+    print('index')
+    result = CRest.call('profile', {})
+    #
+    pprint.pprint(result)
+
+
